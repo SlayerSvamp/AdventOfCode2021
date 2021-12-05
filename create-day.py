@@ -1,6 +1,8 @@
 import sys
 
 day, *args = sys.argv[1:]
+
+assert day.isnumeric(), 'first parameter must be numerical value for day in december'
 name = f'day-{day:0>2}'
 py_file = open(f'{name}.py', 'a+')
 
