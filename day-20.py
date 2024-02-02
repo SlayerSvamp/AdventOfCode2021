@@ -3,37 +3,40 @@ data_file = 'data/day-20.txt'
 
 
 def adjacent(grid, x, y, infinite):
+    index = 0
     for dy in (-1, 0, 1):
         for dx in (-1, 0, 1):
-            yield grid.get((x+dx, y+dy), infinite)
+            index += index + ('#' == grid.get((x+dx, y+dy), infinite))
+    return index
 
 
 def process(file):
     lines = open(file).read().splitlines()
     lookup = lines.pop(0)
     lines.pop(0)
-
+    height = len(lines)
+    width = len(lines[0])
     image = {}
-    for y, line in enumerate(lines):
-        for x, cell in enumerate(line):
-            image[x, y] = cell
+    for y in range(-50, height + 51):
+        for x in range(-50, width + 51):
+            if height <= y or y < 0 or width <= x or x < 0:
+                cell = '.'
+            else:
+                cell = lines[y][x]
+            image[x+50, y+50] = cell
 
-    for y in range(-50, len(lines) + 51):
-        for x in range(-50, len(lines[0]) + 51):
-            image[x, y] = image.get((x, y), '.')
+    inf_lookup = '.' + lookup[0]
+    images = [image]
+    for steps in range(50):
+        infinite = inf_lookup[steps % 2]
+        image = {}
+        for x, y in images[-1]:
+            index = adjacent(images[-1], x, y, infinite)
+            image[x, y] = lookup[index]
+        images.append(image)
 
-    for pairs in range(25):
-        for infinite in (0, lookup[0]):
-            new_image = {}
-            for (x, y), v in image.items():
-                index = 0
-                for z in adjacent(image, x, y, infinite):
-                    index += index + (z == '#')
-                new_image[x, y] = lookup[index]
-            image = new_image
-        if not pairs:
-            part_1 = list(image.values()).count('#')
-    part_2 = list(image.values()).count('#')
+    part_1 = list(images[2].values()).count('#')
+    part_2 = list(images[-1].values()).count('#')
 
     return [part_1, part_2]
 
